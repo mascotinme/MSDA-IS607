@@ -1,0 +1,84 @@
+---
+title: 'IS607: WEEK 3 ASSIGNMENT'
+author: "MUSA T. GANIYU"
+date: "February 9, 2016"
+output: html_document
+---
+This is the solution to IS607 (Week 3) assignment. Thanks for your time. 
+
+```{R, eval=TRUE}
+#Before we proceed, lets install and load the packages below for easy accesibility to SQL.
+
+#install.packages("RMySQL");
+#install.packages("DBI");
+
+library(DBI);
+library("RMySQL");
+
+# NOTE: my username = "root", password = "oracle", database_name = "diseases", and host = "localhost". You may be required to change these to your local or server access details.
+
+disease = dbConnect(MySQL(), user='root', password='oracle', dbname='DISEASES', host='localhost');
+
+# viewing the table lists in the database.
+
+dbListTables(disease);
+
+# Query from MySQL through R.
+
+disease2 = dbSendQuery(disease, "SELECT T.SEX, T.CASE1, T.CASE2
+FROM TB T
+LEFT JOIN TB_POPULATION TP ON TP.COUNTRY = T.COUNTRY
+LEFT JOIN POPULATION P ON TP.YEARS = P.YEARS
+ORDER BY T.SEX, T.CASE1;");
+
+# Viewing the sql query
+disease3 = fetch(disease2, n=-1);
+View(disease3);
+
+
+
+# Now on R and Loading our databases (tb & population) from my local directory.
+
+library(plyr);
+
+tb1 = read.csv("C:/Data/tb.csv", head = TRUE, sep = ",");
+
+population = read.csv("C:/Data/population.csv", head = TRUE, sep = ",");
+
+# Renaming the tb column names
+
+tb=rename(tb1, c("Afghanistan"="country", "X1995"="year", "female"="sex", "X.1"="case1", "X.1.1"="case2", "X.1.2"="case3"));
+
+# A glance at the output after renaming.
+
+head(tb);
+head(population);
+
+# Merging the databases together
+
+diseases5 <- merge(tb, population, by =c("country", "year"));
+
+
+# obtaining the column summation.
+
+sum_all <- cbind(diseases5$case1+diseases5$case2+diseases5$case3);
+
+# cases/population as asked in the assignment!
+
+rate1 <- cbind(sum_all/diseases5$population);
+
+# Combing resulting data with the both tb and population
+
+diseases5["rate"] <- rate1;
+head(diseases5);
+
+# some statistics, Hooray! Here is the results...
+
+
+display <- diseases5[, c("country","year","rate")];
+
+summary(display$rate);
+boxplot(display$rate);
+head(display);
+
+```
