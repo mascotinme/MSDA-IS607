@@ -1,0 +1,65 @@
+---
+title: 'IS 607: WEEK 4 ASSIGNMENT SOLUTION'
+author: "MUSA T. GANIYU"
+date: "February 20, 2016"
+output: pdf_document
+---
+3. We load the data from example given in chapter 8 of Automated Data Collection with R (page 196).
+
+```{r}
+data <- "555-123Moe Szyslak (636) 555-0113Burns, C. Montgomery555-6542Rev. Timothy Lovejoy555 8904Ned Flanders636-555-3226Simpson, Homer555364Dr. Julius Hibbert";
+
+library(stringr);
+
+name <- unlist(str_extract_all(data, "[[:alpha:]., ]{2,}"))
+
+name;
+ # Rearrange the vector to so that all element conform to the standard first_name, last_name.
+
+sort(name, partial = NULL, na.last = NA, decreasing = FALSE,
+     method = c("first_name", "last_name"), index.return = FALSE);
+
+# Vector indicating wether a character has a title ( i.e Rev. and Dr.)
+
+str_extract(name, ("Dr.|Rev."));
+str_detect(name, ("Dr.|Rev."));
+
+# Vector indicating wether a character has a second name.
+
+str_detect(name, ("second name"));
+
+```
+
+4.
+Consider the string < title>+++BREAKING NEWS+++</title>. We would like to extract the first HTML tag. To do so we write the regular expression <.+>. Explain why this fail and correct the expression.    
+
+```{r}
+# note that this is HTML with + as COMMON QUANTIFICATION OPERATOR, "." as character to extract order in sequence.
+
+
+
+html_tag <- "< title>+++BREAKING NEWS+++</title>";
+str_extract(html_tag, "<.+>");
+
+
+# This is a Greedy Quantification; We Correct this by adding the operator "?" after operator "+".
+
+str_extract(html_tag, "<.+?>");
+
+```
+8. Consider the string (5-3)^2=5^2-2*5*3+3 conforms to the binomial theorem. We would like to extract the formula in the string. To do so we write the regular expression [^0-9=+*()] +.Explain why this fails and correct the expression.
+
+
+```{r}
+data2 <- "(5-3)^2=5^2-2*5*3+3 conforms to the binomial theorem.";
+
+str_extract(data2, "[^0-9=+*()]+");
+
+# The "^" raises all the characters at its end, and the "-" makes an inclusion in the character class.
+
+str_extract(data2, "[0-9=+*()^]+");
+
+str_extract(data2, "[0-9=+*()^-]+")
+
+```
+
