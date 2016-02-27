@@ -1,0 +1,100 @@
+---
+title: 'IS607: PROJECT 1'
+author: "MUSA T. GANIYU"
+date: "February 21, 2016"
+output: pdf_document
+---
+```{r}
+
+# Load data into R, and require package is "stringr"
+library(stringr);
+library(knitr);
+library(ggplot2)
+
+tournamentinfo1 <- read.table("https://raw.githubusercontent.com/mascotinme/MSDA-IS607/master/tournamentinfo.txt", head = TRUE, sep = ",");
+
+head(tournamentinfo1);
+
+str(tournamentinfo1);
+
+# Setting Working Direrctory, and read the line (Because its a .txt file) 
+
+setwd("C:/Data"); 
+data <- readLines("tournamentinfo.txt");
+str(data);
+
+#A glance at the data shows we have to extract the vector on after the other and latter combined them together. We will be extract the players states, names, outcomes, before_rating, their respective opponent total points etc.
+
+
+
+states <- str_trim(unlist(str_extract_all(data, " ON | OH | MI ")))
+str(states);
+
+
+
+outcomes <- unlist(str_extract_all(data, "[:digit:][//.][:digit:]"))
+str(outcomes);
+
+
+# Again, we extract all aphabets, integers unlist it and then trim them to get the outcomes, names, before_the_rating, opponent lists etc. This list starts from the second name on the list to the 64th.
+
+names <- (str_trim(unlist(str_extract_all(data, "([[:alpha:] ]-?){15,31}"))))[2:65]
+head(names);
+
+
+before_the_rating <- as.integer(sub(pattern = 'R: ', replacement = '', x = unlist(str_extract_all(data, "R: [[:digit:] ]{4}"))))
+
+str(before_the_rating);
+
+
+opponent <- gsub("\\|", " ", str_sub(unlist(str_extract_all(data, "[:digit:][//.][:digit:][|DLWUXBH[:digit:] ]{44}")), start = 10, end = 47))
+str(opponent);
+
+
+#lists the opponent based on "W|D|U|H|B|X|L" as | means 'OR' by splitting.
+
+
+
+list_of_opponent <- (strsplit(opponent, " W  | D  | U  | H  | B  | X  | L  "));
+head(list_of_opponent);
+
+
+matrix_1 <- sapply(list_of_opponent, as.numeric);
+
+#We convert the the "before_the_rating" to matrix on 7 rows.
+
+matrix_2 <- matrix(before_the_rating[matrix_1], nrow = 7)
+
+#We convert opposition matrix to integer and obtain it averages/means, 
+
+
+opponent_average <- as.integer(format(apply(matrix_2, 2, mean, na.rm = TRUE), digits = 4))
+str(opponent_average)
+
+#The final tournament outcomes as requested in the project question.
+
+
+final_tournament_outcomes <- data.frame(names, states, outcomes, before_the_rating, opponent_average);
+str(final_tournament_outcomes);
+kable(head(final_tournament_outcomes));
+
+
+diff <- (final_tournament_outcomes$before_the_rating - final_tournament_outcomes$opponent_average);
+
+diff;
+
+
+# .csv file that could be imported into a SQL databa
+
+tournament_csv = read.delim("tournamentinfo.txt")
+write.table(tournament_csv, file="tournamentinfo.csv",sep=",",col.names=FALSE,row.names=FALSE)
+
+head(tournament_csv);
+
+
+
+
+```
+THANKS.
+
+
