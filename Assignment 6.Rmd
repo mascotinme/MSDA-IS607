@@ -1,0 +1,94 @@
+---
+title: 'IS 607: Assignment 6'
+author: "MUSA T. GANIYU"
+date: "March 2, 2016"
+output: pdf_document
+---
+
+
+
+```{r}
+# load the require packages.
+library(stringr);
+library(dplyr);
+library(tidyr);
+library(ggplot2);
+require(knitr);
+
+# load data file from url.
+
+data1 <- read.csv("https://raw.githubusercontent.com/mascotinme/MSDA-IS607/master/ontime_delayed.csv", stringsAsFactors = FALSE, check.names = FALSE, na.strings = c("", "NA"));
+
+kable(head(data1));
+# It revealed from the data above that the third role has no data at all (empty), we will therefore remove the row.
+which(is.na(data1));
+
+data <- data.frame(data1[-3, ]);
+
+kable(head(data))
+
+
+# From the glimpes of the data, we can see that the 1st & 2nd columns has no name, we therefore assign name to it
+colnames(data)[1] = "Airline"
+colnames(data)[2] = "Status"
+
+
+# after the removal of the row and naming the columns, we saw that there are still empty rows, we therefore replace it with "ALASKA" & "AM WEST", since the new rows are referencing thesame data for same airline.
+
+data[2,1] = "ALASKA"
+data[4,1] = "AM WEST"
+data[1,7] = 1841
+data[3,4] = 4840
+
+kable(head(data));
+
+# We now use tidyr to gather the respective rows and columns together in a reasonabe manner.
+
+tidy_data <- gather(data, "Destination", "Number_of_time", 3:7, na.rm = TRUE);
+kable(head(tidy_data));
+
+
+tidy_data1 <- spread(tidy_data, key = Status, value= Number_of_time )
+colnames(tidy_data1)[4] = "ontime"
+kable(head(tidy_data1));
+
+str(tidy_data1)
+
+# Note that the data type for ontime & delayed is character format, we now change them to numeric for easy calculations.
+
+tidy_data1<- within(tidy_data1, {
+delayed<- as.numeric(as.character(delayed))
+ontime<- as.numeric(as.character(ontime))}) 
+
+# Summarize the average mean for the ontime
+data_avg <- tidy_data1 %>% group_by(Airline, Destination) %>%
+summarise(Avg=mean(ontime))
+data_avg
+
+# Plotting the delayed with ontime
+options(warn=-1)
+plot <- ggplot(data= tidy_data1, aes(y=delayed, x=ontime, fill=factor(Airline))) + geom_point() 
+plot + geom_smooth() + facet_wrap(~Airline);
+
+
+# plotting graph to visually represent the conclusion.
+
+data_plot <- ggplot(tidy_data1, aes(y=ontime, x=delayed)) + geom_point(shape=1)
+data_plot + geom_smooth()
+
+# some inferences.
+kable(tidy_data1 %>% select(Destination,Airline, ontime, delayed) %>% filter(ontime == max(tidy_data1$ontime)))
+
+kable(tidy_data1 %>% select(Destination,Airline, ontime, delayed) %>% filter(delayed == min(tidy_data1$delayed)))
+
+summary(c(tidy_data1$delayed, tidy_data1$ontime));
+
+
+
+
+
+
+
+```
+
+**THANKS FOR YOUR TIME**
