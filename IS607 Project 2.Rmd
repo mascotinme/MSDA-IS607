@@ -1,0 +1,305 @@
+---
+title: "IS607: Project 2"
+author: "MUSA T. GANIYU"
+date: "March 12, 2016"
+output: html_document
+---
+
+**The Dataset Posted By Valerie Briot**
+
+**Load saved dataset from Github.com**
+
+**Analysis:**
+
+**"free" app with most downloads per year**
+
+**"paid" app with most downloads per year**
+
+**Average downloads for each app since the release date for each provider**
+
+**Average downloads for each app since the release dates across providers**
+
+```{r}
+require(dplyr);
+require(knitr);
+data <- read.csv("https://raw.githubusercontent.com/mascotinme/MSDA-IS607/master/CUNY%20607%20-%20Week%206.csv", header = TRUE, sep = ",", skip = 2);
+kable(head(data))
+names(data)
+
+```
+
+**Separating the data into two for easy analysis.**
+
+```{r}
+google_play <- subset(data, select=c(Type, Paid.Free, Release.Date.1, X2010.1, X2011.1, X2012.1, X2013.1, X2014.1, X2015.1));
+kable(head(google_play));
+apple_store <- subset(data, select=c(Type, Paid.Free, Release.Date.1, X2010, X2011, X2012, X2013, X2014, X2015));
+kable(head(apple_store))
+
+```
+
+**Replacing the NA's to zero (0)**
+
+```{r}
+
+
+google_play <- google_play %>% mutate( X2010.1 = ifelse(is.na(X2010.1),0,X2010.1))
+google_play <- google_play %>% mutate( X2011.1 = ifelse(is.na(X2011.1),0,X2011.1))
+google_play <- google_play %>% mutate( X2012.1 = ifelse(is.na(X2012.1),0,X2012.1))
+google_play <- google_play %>% mutate( X2013.1 = ifelse(is.na(X2013.1),0,X2013.1))
+google_play <- google_play %>% mutate( X2014.1 = ifelse(is.na(X2014.1),0,X2014.1))
+View(google_play)
+
+apple_store <- apple_store %>% mutate( X2010 = ifelse(is.na(X2010),0,X2010))
+apple_store <- apple_store %>% mutate( X2011 = ifelse(is.na(X2011),0,X2011))
+apple_store <- apple_store %>% mutate( X2012 = ifelse(is.na(X2012),0,X2012))
+apple_store <- apple_store %>% mutate( X2013 = ifelse(is.na(X2013),0,X2013))
+apple_store <- apple_store %>% mutate( X2014 = ifelse(is.na(X2014),0,X2014))
+
+
+kable(head(google_play))
+kable(head(apple_store))
+```
+
+**"free" app with most downloads per year**
+**Slicing the data for easy accesibilty**
+```{r}
+google_play2 <- slice(google_play, 1:10)
+google_play3 <- slice(google_play, 11:12)
+apple_store2 <- slice(apple_store, 1:10)
+apple_store3 <- slice(apple_store, 11:12)
+
+kable(google_play2 %>% select(Paid.Free,Release.Date.1,X2010.1, X2011.1, X2012.1, X2013.1, X2014.1, X2015.1) %>% filter(X2015.1 == max(google_play2$X2015.1)));
+```
+
+**"paid" app with most downloads per year**
+
+```{r}
+kable(google_play3 %>% select(Paid.Free,Release.Date.1,X2010.1, X2011.1, X2012.1, X2013.1, X2014.1, X2015.1) %>% filter(X2015.1 == max(google_play3$X2015.1)));
+```
+
+**Average downloads for each app since the release date for each provider**
+
+```{r}
+kable(head(google_play %>% summarise_each(funs(mean), X2010.1,X2011.1,X2012.1, X2011.1,X2014.1, X2015.1)));
+```
+
+**"free" app with most downloads per year**
+
+```{r}
+
+kable(apple_store2 %>% select(Paid.Free,Release.Date.1,X2010, X2011, X2012, X2013, X2014, X2015) %>% filter(X2015 == max(apple_store2$X2015)));
+```
+
+**"paid" app with most downloads per year**
+
+```{r}
+kable(apple_store3 %>% select(Paid.Free,Release.Date.1,X2010, X2011, X2012, X2013, X2014, X2015) %>% filter(X2015 == max(apple_store3$X2015)));
+```
+
+**Average downloads for each app since the release date for each provider**
+
+```{r}
+kable(head(apple_store %>% summarise_each(funs(mean), X2010,X2011,X2012, X2011,X2014, X2015)))
+
+
+```
+
+**DATASET TWO**
+
+**WHAT IMPACT DOES BODY WEIGHT HAVE ON BRAIN WEIGHT?**
+
+**The data records the average weight of the brain and body for a number of mammal species.**
+**There are 62 rows of data.  The 3 data columns include:**
+**I,  the index, A1, the brain weight;**
+**B,  the body weight.**
+**We seek a model of the form:**
+**B = A1 * X1.**
+
+**Load data from URL **
+```{r}
+require(knitr);
+weights <- read.table("http://people.sc.fsu.edu/~jburkardt/datasets/regression/x01.txt", skip = 32, header = TRUE, sep = "")
+kable(head(weights));
+names(weights);
+options(warn=-1)
+```
+** Load require package.**
+```{r}
+library(plyr);
+
+```
+**Note the data columns came with Body & Weight, but its actually "BrainWeight & "BodyWeight" in the data, which needs correction.**
+```{r}
+names(weights)[names(weights)=="Body"] <- "BrainWeight";
+names(weights)[names(weights)=="Weight"] <- "BodyWeight";
+str(weights);
+
+names(weights);
+kable(head(weights));
+```
+
+**Lets checkout its histogram.**
+```{r}
+hist(weights$BrainWeight);
+hist(weights$BodyWeight);
+```
+
+**We can deduce that it a Very Rightly Skewed data, an intervention is required.Its getting the Natural logarithm of the data set.**
+```{r}
+
+weights_log <- cbind(weights, log(weights$BrainWeight), log(weights$BodyWeight));
+
+kable(head(weights_log));
+```
+
+**load required package and attach the data again and plot it in scatterplot 3D.**
+```{r}
+library(scatterplot3d);
+
+attach(weights_log);
+scatterplot3d(BrainWeight, BodyWeight, pch = 20, highlight.3d = TRUE, type = "h", main = "3D ScatterPlots"); 
+```
+
+
+**Removing or seperating new column from initial data set.**
+```{r}
+
+weights_log[,c("BrainWeight","BodyWeight")] <- list(NULL);
+colnames(weights_log);
+
+a <- plot(weights_log, ylab="Brain Weight",
+   plot.type="double", col=1:2, xlab="Body Weight")
+legend("topleft", legend=c("Brain Weight","Body Weight"),
+  lty=1, col=c(1,2), cex=.8)
+abline(a)
+```
+
+
+**Changing the column name.**
+```{r}
+names(weights_log)[names(weights_log)=="log(weights$BrainWeight)"] <- "BrainWeights";
+names(weights_log)[names(weights_log)=="log(weights$BodyWeight)"] <- "BodyWeight";
+
+kable(head(weights_log));
+```
+
+**Correlations and covariance shows a strong positive relationship between Brain Weights and Body weight**
+```{r}
+cor(weights_log, use="complete.obs", method="kendall")
+
+
+```
+
+**Histogram for Body weight**
+```{r}
+x <- weights_log$BodyWeight;
+
+hist(x, 
+ xlim=c(min(x),max(x)), probability=T, 
+   col='purple', xlab='Body Weight', ylab=' Frequency', axes=T,
+   main='Natural Logarithm: Multi-modal')
+lines(density(x,bw=1), col='red', lwd=2)
+```
+
+
+**Getting the mode of BodyWeight**
+```{r}
+mode_1 <- table(as.vector(x));
+names(mode_1)[mode_1 == max(mode_1)];
+```
+
+
+**Histogram for Brain weight**
+```{r}
+y <- weights_log$BrainWeight;
+
+hist(y, 
+ xlim=c(min(y),max(y)), probability=T, 
+   col='purple', xlab='Brain Weight', ylab=' Frequency', axes=T,
+   main='Natural Logarithm: Bi-modal')
+lines(density(y,bw=1), col='red', lwd=2)
+kable(summary(weights_log));
+```
+
+**Getting the mode of Brain Weight**
+
+```{r}
+mode_2 <- table(as.vector(y));
+names(mode_2)[mode_2 == max(mode_2)];
+
+```
+
+**Load required package forecast, for forecasting.**
+```{r}
+library(forecast);
+
+Acf(weights_log$BodyWeight, lag.max=NULL, type=c("correlation", "partial"), plot=TRUE, main=NULL, xlim=NULL, ylim=NULL, xlab="Lag", ylab=NULL, na.action=na.contiguous); 
+
+```
+
+**The Credit Card Default Dataset Posted By Keith Folsom**
+
+**The UCI Machine Learning Repository has a wide dataset containing credit card payments, owed and payed, for individuals spanning several months.  The dataset includes variables such as gender, marital status, education, and age.**
+
+```{r}
+require(knitr);
+require(dplyr);
+require(tidyr);
+dataset1 <- read.csv("https://raw.githubusercontent.com/mascotinme/MSDA-IS607/cd55bba4605695b2cc07793517ae61fb05032e0a/Copy%20of%20default%20of%20credit%20card%20clients.csv", header = TRUE, sep = ",", skip = 1)
+
+kable(head(dataset1))
+```
+
+**1.) Create summary statistics on each group (age, gender, education, etc.).**
+
+```{r}
+
+summary(dataset1)
+
+```
+
+** Selecting and splitting the dataset for each accesibilty**
+
+```{r}
+
+Bill_amount <- select(dataset1, num_range("BILL_AMT", 1:6))
+kable(head(Bill_amount))
+
+pay <- select(dataset1, num_range("PAY", 1:6))
+kable(head(pay))
+
+pay_amount <- select(dataset1, num_range("PAY_AMT", 1:6))
+kable(head(pay_amount))
+
+dataset2 <- dataset1[, c(1, 2, 3, 4, 5, 6, 25)]
+kable(head(dataset2))
+```
+**2.) Which group has the highest/lowed credit limit?**
+
+```{r}
+
+kable(head(pay_amount %>% select(PAY_AMT1, PAY_AMT2, PAY_AMT3, PAY_AMT4, PAY_AMT5, PAY_AMT6) %>% filter(PAY_AMT3 == max(pay_amount$PAY_AMT3))));
+
+kable(head(Bill_amount %>% select(BILL_AMT1, BILL_AMT2, BILL_AMT3, BILL_AMT4, BILL_AMT5, BILL_AMT6) %>% filter(BILL_AMT3 == max(Bill_amount$BILL_AMT3))))
+
+kable(head(pay %>% select(PAY_0,PAY_2, PAY_3, PAY_4, PAY_5, PAY_6) %>% filter(PAY_6 == max(pay$PAY_6))));
+```
+
+**Which group has the highest/lowed credit limit?  Which group has the most outstanding debt?**  
+
+```{r}
+
+kable(head(dataset2 %>% select(AGE, EDUCATION, SEX, LIMIT_BAL) %>% filter(LIMIT_BAL == max(dataset2$LIMIT_BAL))));
+
+kable(head(dataset2 %>% select(AGE, EDUCATION, SEX, LIMIT_BAL) %>% filter(LIMIT_BAL == min(dataset2$LIMIT_BAL))));
+```
+
+**What combination of age, gender, etc. is the least likely to default?**
+
+```{r}
+kable(head(dataset2 %>% select(AGE, EDUCATION, SEX, LIMIT_BAL, default.payment.next.month) %>% filter(default.payment.next.month == min(dataset2$default.payment.next.month))));
+
+
+```
+
