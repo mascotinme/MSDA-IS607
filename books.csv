@@ -1,7 +1,7 @@
 name,isbn,author,year,pages,genre
-the great gatsby,,f. scott fitgerald,1925,180,romance
-the grapes of wrath,,john steinbeck,1935,455,adult fiction
-nineteen eighty-four,,george orwell,1949,326,politics
-ulysses,,james joyce,1918,783,literary fiction
-the catcher in the rye,,j.d salinger,1951,277,coming of age
-to kill a mockingbird,,harper lee,1960,323,young adult
+the great gatsby,45221558221,f. scott fitgerald,1925,180,romance
+the grapes of wrath,45879520025,john steinbeck,1935,455,adult fiction
+nineteen eighty-four,47585201156,george orwell,1949,326,politics
+ulysses,87552222913,james joyce,1918,783,literary fiction
+the catcher in the rye,25586302255,j.d salinger,1951,277,coming of age
+to kill a mockingbird,45582112555,harper lee,1960,323,young adult
