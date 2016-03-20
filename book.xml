@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Root xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<Row>
+		<name>Engineering mathematics: 7th Edition</name>
+		<isbn>978-1100005</isbn>
+		<author>Dexter Booth, Ken Stroud</author>
+		<year>2013</year>
+		<pages>1057</pages>
+		<genre>Educational</genre>
+		<type>Hard Cover</type>
+	</Row>
+	<Row>
+		<name>American Sniper: The Autobiography of the Most Lethal Sniper in U.S. Military History</name>
+		<isbn>978-0062238863</isbn>
+		<author>Chris Kyle, Scott McEwen, Jim Defelice</author>
+		<year>2013</year>
+		<pages>448</pages>
+		<genre>Literary Literature</genre>
+		<type>PaperBack</type>
+	</Row>
+	<Row>
+		<name>the catcher in the rye</name>
+		<isbn>978-0316769488</isbn>
+		<author>j.d salinger</author>
+		<year>1951</year>
+		<pages>240</pages>
+		<genre>coming of age</genre>
+		<type>PaperBack</type>
+	</Row>
+</Root>
