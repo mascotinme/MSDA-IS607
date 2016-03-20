@@ -1,18 +1,113 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Books>
-  <Name>Engineering mathematics: 7th Edition
-American Sniper: The Autobiography of the Most Lethal Sniper in U.S. Military History
-The Catcher in the Rye
-</Name>
-  <ISBN>9784562256895
-978-0062238863
-978-0316769488
-</ISBN>
-  <Author>Dexter Booth, Ken Stroud
-Chris Kyle, Scott McEwen, Jim Defelice
-J.D Salinger</Author>
-  <Year>201320131951</Year>
-  <Pages>1057448240</Pages>
-  <Genre>Educationalliterary LiteratureComing of Age</Genre>
-  <Type>HardCoverPaperBackPaperBack</Type>
-</Books>
+<?xml version="1.0"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:o="urn:schemas-microsoft-com:office:office"
+ xmlns:x="urn:schemas-microsoft-com:office:excel"
+ xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
+ xmlns:html="http://www.w3.org/TR/REC-html40">
+ <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
+  <Author>mayowa</Author>
+  <LastAuthor>mayowa</LastAuthor>
+  <Created>2016-03-20T03:48:01Z</Created>
+  <LastSaved>2016-03-20T04:40:17Z</LastSaved>
+  <Version>15.00</Version>
+ </DocumentProperties>
+ <OfficeDocumentSettings xmlns="urn:schemas-microsoft-com:office:office">
+  <AllowPNG/>
+ </OfficeDocumentSettings>
+ <ExcelWorkbook xmlns="urn:schemas-microsoft-com:office:excel">
+  <WindowHeight>9735</WindowHeight>
+  <WindowWidth>24000</WindowWidth>
+  <WindowTopX>0</WindowTopX>
+  <WindowTopY>0</WindowTopY>
+  <ProtectStructure>False</ProtectStructure>
+  <ProtectWindows>False</ProtectWindows>
+ </ExcelWorkbook>
+ <Styles>
+  <Style ss:ID="Default" ss:Name="Normal">
+   <Alignment ss:Vertical="Bottom"/>
+   <Borders/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#000000"/>
+   <Interior/>
+   <NumberFormat/>
+   <Protection/>
+  </Style>
+  <Style ss:ID="s16">
+   <NumberFormat ss:Format="Scientific"/>
+  </Style>
+  <Style ss:ID="s17">
+   <Alignment ss:Vertical="Center"/>
+  </Style>
+  <Style ss:ID="s18">
+   <Alignment ss:Vertical="Center"/>
+   <Font ss:FontName="Calibri" x:Family="Swiss" ss:Size="11" ss:Color="#212121"/>
+  </Style>
+  <Style ss:ID="s19">
+   <Font ss:FontName="Arial" x:Family="Swiss" ss:Color="#333333"/>
+  </Style>
+ </Styles>
+ <Worksheet ss:Name="Sheet1">
+  <Table ss:ExpandedColumnCount="7" ss:ExpandedRowCount="4" x:FullColumns="1"
+   x:FullRows="1" ss:DefaultRowHeight="15">
+   <Column ss:Index="2" ss:Width="57.75"/>
+   <Row>
+    <Cell><Data ss:Type="String">name</Data></Cell>
+    <Cell><Data ss:Type="String">isbn</Data></Cell>
+    <Cell><Data ss:Type="String">author</Data></Cell>
+    <Cell><Data ss:Type="String">year</Data></Cell>
+    <Cell><Data ss:Type="String">pages</Data></Cell>
+    <Cell><Data ss:Type="String">genre</Data></Cell>
+    <Cell><Data ss:Type="String">type</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">Engineering mathematics: 7th Edition</Data></Cell>
+    <Cell ss:StyleID="s16"><Data ss:Type="String">978-1100005</Data></Cell>
+    <Cell><Data ss:Type="String">Dexter Booth, Ken Stroud</Data></Cell>
+    <Cell><Data ss:Type="Number">2013</Data></Cell>
+    <Cell><Data ss:Type="Number">1057</Data></Cell>
+    <Cell><Data ss:Type="String">Educational</Data></Cell>
+    <Cell><Data ss:Type="String">Hard Cover</Data></Cell>
+   </Row>
+   <Row>
+    <Cell ss:StyleID="s18"><Data ss:Type="String">American Sniper: The Autobiography of the Most Lethal Sniper in U.S. Military History</Data></Cell>
+    <Cell ss:StyleID="s19"><Data ss:Type="String">978-0062238863</Data></Cell>
+    <Cell ss:StyleID="s17"><Data ss:Type="String">Chris Kyle, Scott McEwen, Jim Defelice</Data></Cell>
+    <Cell><Data ss:Type="Number">2013</Data></Cell>
+    <Cell><Data ss:Type="Number">448</Data></Cell>
+    <Cell><Data ss:Type="String">Literary Literature</Data></Cell>
+    <Cell><Data ss:Type="String">PaperBack</Data></Cell>
+   </Row>
+   <Row>
+    <Cell><Data ss:Type="String">the catcher in the rye</Data></Cell>
+    <Cell ss:StyleID="s19"><Data ss:Type="String">978-0316769488</Data></Cell>
+    <Cell><Data ss:Type="String">j.d salinger</Data></Cell>
+    <Cell><Data ss:Type="Number">1951</Data></Cell>
+    <Cell><Data ss:Type="Number">240</Data></Cell>
+    <Cell><Data ss:Type="String">coming of age</Data></Cell>
+    <Cell><Data ss:Type="String">PaperBack</Data></Cell>
+   </Row>
+  </Table>
+  <WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel">
+   <PageSetup>
+    <Header x:Margin="0.3"/>
+    <Footer x:Margin="0.3"/>
+    <PageMargins x:Bottom="0.75" x:Left="0.7" x:Right="0.7" x:Top="0.75"/>
+   </PageSetup>
+   <Print>
+    <ValidPrinterInfo/>
+    <HorizontalResolution>-3</HorizontalResolution>
+    <VerticalResolution>-3</VerticalResolution>
+   </Print>
+   <Selected/>
+   <Panes>
+    <Pane>
+     <Number>3</Number>
+     <ActiveRow>5</ActiveRow>
+     <ActiveCol>1</ActiveCol>
+    </Pane>
+   </Panes>
+   <ProtectObjects>False</ProtectObjects>
+   <ProtectScenarios>False</ProtectScenarios>
+  </WorksheetOptions>
+ </Worksheet>
+</Workbook>
