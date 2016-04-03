@@ -1,0 +1,99 @@
+---
+title: 'IS 607: Assignment 10'
+author: "MUSA T. GANIYU"
+date: "March 29, 2016"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    code_folding: hide
+    highlight: pygments
+    theme: cerulean
+    toc: yes
+    toc_depth: 4
+    toc_float:
+      collapsed: yes
+      smooth_scroll: no
+---
+Your task is to choose one of the New York Times APIs, construct an interface in R to read in the JSON d
+ata, and 
+transform it to an R dataframe
+
+Note: Load the require packages for easy accesibility.
+
+```{r}
+library(knitr)
+library(XML)
+library(jsonlite)
+library(plyr)
+
+```
+
+Load the data file from the New York Times webpage. And an API key is required for accessing the webpage as a developer.
+
+```{r}
+url.times <- ("http://api.nytimes.com/svc/politics/v3/us/legislative/congress/107-113/nominees/updated.xml?api-key=685874ff71bb286631a8ea2c3f9989bb:16:74820193")
+
+XML_doc   <- htmlParse(url.times)
+
+str(XML_doc)
+```
+
+We found out that the dataset isnt in dataframe yet, we will therefore convert if from list to dataframe.
+
+
+```{r}
+
+
+nytimes_all <- ldply(xmlToList(XML_doc), data.frame)
+```
+
+As you have noticed, we have a whole bunch of "repeating" columns, we will therefore subset 10 of it and rename it.
+
+```{r}
+nytimes <- nytimes_all[, 1:10]
+
+names(nytimes)[names(nytimes)==".id"] <- "id"
+names(nytimes)[names(nytimes)=="result_set.status"] <- "status"
+names(nytimes)[names(nytimes)=="result_set.copyright"] <- "copyright"
+names(nytimes)[names(nytimes)=="result_set.results.congress"] <- "congress_results"
+names(nytimes)[names(nytimes)=="result_set.results.num_results"] <- "num_results"
+names(nytimes)[names(nytimes)=="result_set.results.nominations.nomination.id"] <- "nomination_id"
+names(nytimes)[names(nytimes)=="result_set.results.nominations.nomination.uri"] <- "nomination_uri"
+names(nytimes)[names(nytimes)=="result_set.results.nominations.nomination.date_received"] <- "date_received"
+names(nytimes)[names(nytimes)=="result_set.results.nominations.nomination.description"] <- "description"
+names(nytimes)[names(nytimes)=="result_set.results.nominations.nomination.nominee_state"] <- "state"
+
+xmlSize(nytimes) #how many children in node, 10
+nytimes[[1]]
+```
+
+Here is the extracted dataset head
+
+
+```{r}
+
+names(nytimes)
+kable(head(nytimes))
+```
+
+
+lets now try to access thesame dataset from different format called (JSON)
+
+```{r}
+
+url.json <- ("http://api.nytimes.com/svc/politics/v3/us/legislative/congress/107-113/nominees/updated.json?api-key=685874ff71bb286631a8ea2c3f9989bb:16:74820193")
+
+# We have to extract the file from url to json format using fromJson
+
+nytimes.json <- fromJSON(url.json)
+
+# Setting it to dataframe for analysis
+
+nytimes.json <- ldply (nytimes.json[4], data.frame)
+
+kable(head(nytimes.json))
+
+
+```
+

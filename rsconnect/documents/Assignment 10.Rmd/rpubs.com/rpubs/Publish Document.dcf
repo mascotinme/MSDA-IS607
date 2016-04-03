@@ -1,0 +1,7 @@
+name: Publish Document
+account: rpubs
+server: rpubs.com
+bundleId:
+        https://api.rpubs.com/api/v1/document/167596/99a124599095440abc8ae8bcca3c6bd1
+url: http://rpubs.com/mganiyu/167596
+when: 1459680190.73326

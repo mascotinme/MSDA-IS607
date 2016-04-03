@@ -1,0 +1,130 @@
+---
+title: "Project 3"
+author: "MUSA Trail"
+date: "March 22, 2016"
+output: html_document
+---
+
+```{r}
+library(dplyr)
+library(ggplot2)
+library(knitr)
+options(warn=-1)
+
+
+jobdata <- read.csv("https://raw.githubusercontent.com/danielhong98/MSDA-Spring-2016/347a383eae3b9f02bc5d128efb5de14e1f688f8e/tbl_data_v2.csv")
+df <- data.frame(jobdata)
+View(head(df))
+
+
+newjobdata <- jobdata[with(df, order(source_name,-weighted_rating_overall,-weighted_rating_by_skill_type,-weighted_rating_by_skill_set, -skill_type_name, -skill_set_name, -skill_name, -rating_scalar )),]
+
+Google_subset <- subset(newjobdata, source_name == "Google", select=c(skill_id, rating))
+kable(head(Google_subset))
+Indeed_subset <- subset(newjobdata, source_name == "Indeed", select=c(skill_id, rating))
+kable(head(Indeed_subset))
+Kaggle_subset <- subset(newjobdata, source_name == "Kaggle", select=c(skill_id, rating))
+kable(head(Kaggle_subset))
+```
+
+## WHY NON-PARAMETRIC TEST HERE?
+Nonparametric tests are sometimes called distribution-free tests because they are based on fewer assumptions (e.g., they do not assume that the outcome is approximately normally distributed). When the outcomes that are ordinal, ranked, subject to outliers or measured imprecisely are difficult to analyze with parametric methods without making major assumptions about their distributions as well as decisions about coding some values (e.g., "not detected"), then non-parametric maybe be the only viable option.
+
+```{r}
+
+Google <- as.matrix(Google_subset[, 1:2], nrow = 143, ncol = 2,
+       dimnames = NULL)
+Indeed <- as.matrix(Indeed_subset[, 1:2], nrow = 143, ncol = 2,
+       dimnames = NULL)
+Kaggle <- as.matrix(Kaggle_subset[, 1:2], nrow = 143, ncol = 2,
+       dimnames = NULL)
+
+kable(summary(Google))
+kable(summary(Kaggle))
+kable(summary(Indeed))
+
+```
+
+
+## Hypotheses:
+If the data were sampled from a population with a median equal to the hypothetical value, what is the chance of randomly selecting N data points and finding a median as far (or further) from the hypothetical value as observed?
+
+Do these data provide convincing evidence that there is difference between the average rating between these datasets (use $\alpha = 0.05$)?
+
+What are the hypothesis for testing if there is a difference between the average skill_id and rating?
+
+$H_0$: There is no difference between the average number of skill_id and rating.
+
+$$\mu_{diff} = 0$$
+
+$H_A$: There is a difference between the average number of skill_id and rating.
+
+$$\mu_{diff} \ne 0$$
+
+```{r}
+
+barplot(Google, beside = TRUE,
+        col = c("orange"),
+ ylim = c(0, 100))
+title(main = " GOOGLE SKILLS & RATINGS", font.main = 4)
+
+
+barplot(Indeed, beside = TRUE,
+        col = c("lightblue"),
+ ylim = c(0, 100))
+title(main = "INDEED SKILLs & RATINGS", font.main = 2)
+
+barplot(Kaggle, beside = TRUE,
+        col = c("purple"),
+ ylim = c(0, 100))
+title(main = "KAGGLE SKILLs & RATINGS", font.main = 4)
+
+
+
+wilcox.test(Google_subset$skill_id, Google_subset$rating, paired=FALSE, conf.level = 0.95, alternative = "greater") 
+wilcox.test(Indeed_subset$skill_id, Indeed_subset$rating, paired=TRUE,conf.level = 0.95, alternative = "greater") 
+wilcox.test(Kaggle_subset$skill_id, Kaggle_subset$rating, paired=TRUE, conf.level = 0.95, alternative = "greater") 
+
+
+
+
+
+
+friedman.test(Google)
+cor(rank(Google[,1]),rank(Google[,2]))
+
+friedman.test(Indeed)
+cor(rank(Indeed[,1]),rank(Indeed[,2]))
+
+friedman.test(Kaggle)
+cor(rank(Kaggle[,1]),rank(Kaggle[,2]))
+
+```
+
+## Conclusion: Friedman Rank Test.
+
+Since the calculated P-values are less than significance level ($\alpha = 0.05$), we therefore reject Null hypothesis and conclude that the variables are significantly different from each other.
+
+
+## Hypothesis: Kruskal-Wallis Rank Sum Test
+If the groups are sampled from populations with identical distributions, what is the chance that random sampling would result in a sum of ranks as far apart (or more so) as observed in this experiment (use $\alpha = 0.05$)?
+
+$H_0$: There is no difference between the average number of skill_id and rating.
+
+$$\mu_{diff} = 0$$
+
+$H_A$: There is a difference between the average number of skill_id and rating.
+
+$$\mu_{diff} \ne 0$$
+
+```{r}
+
+kruskal.test(skill_id ~ rating, data = Google) 
+kruskal.test(skill_id ~ rating, data = Indeed) 
+kruskal.test(skill_id ~ rating, data = Kaggle) 
+
+```
+
+## Conclusion: Kruskal-Wallis Rank Sum Test {.flexbox .vcenter}
+
+Since p-value > 0.05, we fail to reject the null hypothesis. That is, the data do not provide evidence that there is a statistically significant difference between the number of skill_id and ranking.
