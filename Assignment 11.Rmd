@@ -1,0 +1,146 @@
+---
+title: 'IS 606: Assignment 11'
+author: "MUSA T. GANIYU"
+date: "April 9, 2016"
+output: pdf_document
+---
+Load the packages libraries and load data from Url into R.
+```{r}
+options(warn = -1)
+suppressMessages(library(tm))
+suppressMessages(library(tidyr))
+suppressMessages(library(stringr))
+suppressMessages(library(dplyr))
+suppressMessages(library(SnowballC))
+suppressMessages(library(knitr))
+suppressMessages(library(RTextTools));
+
+
+spam <- read.csv("https://raw.githubusercontent.com/mascotinme/MSDA-IS607/772b359fe7cb65505be4ef38b1541435949f5e12/spam.csv", header = FALSE, sep = ";")
+
+ham <- read.csv("https://raw.githubusercontent.com/mascotinme/MSDA-IS607/772b359fe7cb65505be4ef38b1541435949f5e12/ham.csv", header = FALSE, sep = ";")
+
+spam_ham <- c(spam, ham)
+str(spam_ham)
+```
+
+We combine the files into single file and load it into Corpus.
+
+
+```{R}
+
+review_text <- paste(spam_ham, collapse = " ")
+review_text
+
+
+review_source <- VectorSource(spam_ham)
+corpus <- Corpus(review_source)
+corpus <- tm_map(corpus, removePunctuation)
+
+head(inspect(corpus)) # Inspect the corpus format.
+
+
+corpus <- tm_map(corpus, removeNumbers) # We remove numbers
+corpus <- tm_map(corpus, tolower)       # Change case to lower
+corpus <- tm_map(corpus, stripWhitespace) #Removing whitespaces
+corpus <- tm_map(corpus, removeWords, stopwords("english")) # Removing words
+
+head(corpus)
+
+corpus <- tm_map(corpus, stemDocument)
+corpus <- tm_map(corpus, PlainTextDocument)  
+```
+
+
+We move the corpus into document matrix and remove any sparse term
+
+
+```{R}
+dtm <- DocumentTermMatrix(corpus)
+
+dtm <- removeSparseTerms(dtm, 0.2)
+inspect(dtm)
+```
+
+We are trying to get some summary statistics 
+
+
+```{R}
+freq <- sort(colSums(as.matrix(dtm)), decreasing=TRUE)   
+head(table(freq), 20)  
+
+ord <- order(freq) 
+ord
+
+wf <- data.frame(word=names(freq), freq=freq)   
+head(wf)
+dim(wf)
+
+barplot(wf[1:10, ]$freq, las = 2, names.arg = wf[1:10,]$word, col = "purple",
+        main = "Most Frequent Words", ylab ="Word frequecies")
+```
+
+
+Checking for any association between word(s), displaying it wordcloud and saving/writting it into .csv
+
+```{R}
+findAssocs(dtm, "remove" , corlimit=0.5)
+
+library(wordcloud)
+word <- names(freq)
+
+set.seed(142)   
+dark2 <- brewer.pal(6, "Dark2")   
+wordcloud(names(freq), freq, max.words=100, rot.per=0.2, colors=dark2)  
+
+
+
+
+ham <- as.vector(apply(as.matrix(spam_ham[1], mode="character"),1,paste,"V1",sep="",collapse=""))
+spam <- as.vector(apply(as.matrix(spam_ham[2], mode="character"),1,paste,"V1", sep="",collapse=""))
+
+training_data <- cbind(spam_ham[3], ham, spam) 
+
+training_data = sample(1:nrow(training_data), size=0.2*nrow(training_data))
+training_codes <- training_data[1] 
+training_data <- training_data[-1] 
+
+
+setwd("c:/data")
+write.csv(freq, file="dtm.csv")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+References:
+
+https://stat.ethz.ch/pipermail/r-help/2010-October/255593.html
+
+http://www.inside-r.org/packages/cran/stylo/docs/load.corpus
+
+http://stackoverflow.com/questions/8681688/disable-messages-upon-loading-package-in-r
+
+https://deltadna.com/blog/plotting-in-r-tutorial/
+
