@@ -1,0 +1,178 @@
+---
+title: 'IS 606: PROJECT 4'
+author: "MUSA T. GANIYU"
+date: "April 19, 2016"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    keep_md: yes
+    toc: yes
+---
+
+PROJECT INSTRUCTION:
+
+For Project 4, you should take information from a relational database and migrate it to a NoSQL database of your own choosing. 
+
+For the relational database, you might use the flights database, the tb database, the "data skills" database your team created for Project 3, or another database of your own choosing or creation.
+
+For the NoSQL database, you may use MongoDB, Neo4j (which we introduce in Week 12), or another NoSQL database of your choosing.
+
+ Your migration process needs to be reproducible.  R code is encouraged, but not required.  You should also briefly describe the advantages and disadvantages of storing the data in a relational database vs. your NoSQL database.
+
+
+SOLUTIONS:
+
+Loading the libraries and connect the R with MySQL database. 
+
+NB: You may want to install the packages if you dont have them already. Use < install.packages("package_name")>.
+
+```{r}
+options(warn = -1)
+library(devtools)
+#install_github(repo = "mongosoup/rmongodb", force = TRUE)
+#install.packages("RMySQL")
+#install.packages("plotly")
+library(RMySQL)
+library(hflights)
+library(DBI)
+suppressMessages(library(plotly))
+library(rmongodb)
+library(knitr)
+library(mongolite)
+library(RCurl)
+
+mysql = dbConnect(MySQL(), user='root', password='oracle', dbname='world', host='localhost') # This connects the R with MySQL. Note that the login entities may be different from your login details, kindly adjust as neccesary.
+```
+
+We would like to view the list of database(s) which are already in MySQL database.
+
+```{R}
+
+dbListTables(mysql)
+```
+
+Dropping add adding of table if they already exist to give access to the new table to be created. 
+
+```{R}
+
+dbSendQuery(mysql, 'drop table if exists flights, test')
+dbListFields(mysql, 'city')
+
+
+flights <- hflights # We will be using the hflights dataset that came with R as our new table.
+dbWriteTable(conn=mysql, name='flights', value=flights)
+
+
+```
+
+
+We can now read and access the newly created table in R from MySQL directly.
+
+```{R}
+
+myflights <- dbReadTable(conn=mysql, name='flights')
+
+mysqlquery <- dbGetQuery(mysql, "select UniqueCarrier, ArrTime, Max(AirTime) 'Max Time', Min(Airtime) 'Min Time',  Dest from flights")
+
+kable(head(mysqlquery))
+
+write.table(flights, file = "flights.csv",row.names=FALSE, na="",col.names=TRUE, sep=",")
+```
+
+A plot given a summary of TaxiIn column in MySQL database.
+
+```{R}
+suppressWarnings(plot_ly(data = myflights, color = as.factor(TaxiOut), y = TaxiIn, type = "box"))
+
+```
+
+
+We are now in MongoDB database. A No-SQL database. We will make use of the hflights dataset from R and import it into MongoDB.
+
+```{R}
+
+library(hflights)
+flights <- hflights
+
+mongo_conn <- mongo.create() # createing a MongoDB connection
+
+mongo.is.connected(mongo_conn)  # checking if the mongo is connected
+```
+
+
+If MongDB is connected, get all the databases.
+
+Note: I tried to load the R hflights database directly into MongoDB, but an error was always the outcomes while my computer crashed when trying to retrieve it. So, I decided to load it directly from mysql database, courtesy of these links:
+
+https://docs.mongodb.org/manual/reference/program/mongoimport/
+
+http://stackoverflow.com/questions/35153774/mongoimport-json-file-syntax
+
+
+So, I queried it from my local shell as thus:
+
+mongoimport --db flights --collection flights --type csv --file "C:/Users/mayowa/Documents/GitHub/MSDA-IS607\flights.csv" --headerline
+
+```{R}
+
+if(mongo.is.connected(mongo_conn) == TRUE) {
+  mongo.get.databases(mongo_conn)
+}
+
+
+if(mongo.is.connected(mongo_conn) == TRUE) {
+  db <- "flights"
+  mongo.get.database.collections(mongo_conn, db)
+}
+
+
+#mongoimport --db flights --collection flights --type csv --file "C:/Users/mayowa/Documents/GitHub/MSDA-IS607\flights.csv" --headerline
+
+mongo_conn = mongo(collection = "flights",  db = "flights")
+mongo_conn$insert(mysqlquery)
+
+
+flights2 <- flights[1:15]
+
+
+par(mfrow=c(1,1))
+#Create an interaction plot that plots the mean values of the Origin against the interaction of both 'dest' and 'arrdelay'.
+interaction.plot(flights2$Origin, flights2$Dest, flights2$ArrDelay)
+
+```
+
+
+
+**Scaling:**
+
+**A SQL, MySQL** and some relational databases are not good at is scaling. This is so, because the table and database structure in relational databases really only scale well vertically within a single server - by increasing memory and CPU, using faster disks, etc. But they don't scale well horizontally by adding more servers to share the load, i.e. distributed computing. While, **MongoDB** offers very good performance for situations containing very high write loads, but where data integrity isn't a pressing concern; a good example are the comments sections of large, busy websites like Craigslist etc.
+
+**Terminology and Concepts:**
+
+Many concepts in MySQL have close analogs in MongoDB. This table outlines some of the common concepts in each system.
+
+**MySQL         <------>          	  MongoDB**
+
+**Table	       <---->              Collection**
+
+**Row	         <---->              Document**
+
+**Column	     <---->              Field**
+
+**Joins	       <---->             Embedded documents, linking**
+
+
+
+**Are MongoDB and MySQL used together?**
+
+An explanation made on MongoDB website stated that a "hybrid deployments of MongoDB and MySQL. In some cases, it's a matter of using the right tool for the job. For example, many e-commerce applications use a combination of MongoDB and MySQL. The product catalog, which includes multiple products with different attributes, is a good fit for MongoDB's flexible data model. On the other hand, the checkout system, which requires complex transactions, would likely be built on MySQL or another relational technology", as this still gives MySQL a brighter future as a relational database.
+
+
+**References:**
+
+https://www.youtube.com/watch?v=5Fwd2ZB86gg&ebc=ANyPxKoYPSnx3OpxISeMzrGwT4A6n0FlNnrMCwUGk_J-_EDAjNIJnHL_72rbVxma-2sc94s-f7-Q3uhcV6Q9PcAnT4yhu-ttnw
+
+https://www.mongodb.com/compare/mongodb-mysql
+
+http://www.tamas.io/converting-your-data-from-mysql-to-mongodb/
