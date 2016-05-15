@@ -1,0 +1,549 @@
+---
+title: 'IS 606: PROJECT'
+author: "MUSA T. GANIYU"
+date: "April 28, 2016"
+output:
+  pdf_document: default
+  html_document:
+    highlight: pygments
+    theme: cerulean
+  tidy: yes
+---
+
+
+> **ABSTRACT:**
+
+* The project analysis is done on three (3) different datasets from different sources. The first dataset if from the University of California, Irvine website on **Air Quality**, the second dataset was extracted as an .xls file from World Bank website for the year **1961-1999**, while the third dataset was base on incident rate of leukemia in US States and was extracted from cancer.gov website.
+
+* Analyses was done on all the three datasets to determine if the is linear relationship between them. I found out that the Air Quality has some of it variables that are way beyond the acceptable threnshold, I checked for interaction between those variables and benzene. I compared the result with the Leukemia incident rate in the 49 US States and the result is amazing. 
+
+* We would be **randomly** select observations to avoid bias.
+
+
+> **AIM AND OBJECTIVE:**
+
+  * I am motivated by the serious impacts of the Air Quality throughout the whole world. Lots of adults, children are prone or exposed to the various categories of air throughout the globe. I thought it would be good to do an analysis to see the level of impact and to offer solutions.
+
+
+> Load Libraries:
+
+* Please, kindly install the package(s) first if you don't already have it and load their respective libraries.
+
+```{r}
+
+options(warn = -1)
+suppressMessages(library(xlsx))
+library(xlsxjars)
+library(rJava)
+library(devtools)
+suppressMessages(library(RMySQL))
+library(DBI)
+suppressMessages(library(plotly))
+suppressWarnings(library(rmongodb))
+library(knitr)
+library(mongolite)
+suppressMessages(library(RCurl))
+suppressMessages(library(plyr))
+suppressMessages(library(ggplot2))
+```
+
+
+> We will be using the Air Quality dataset from the University of California, Irvine website: 
+
+http://archive.ics.uci.edu/ml/datasets/Air+Quality#
+
+* It is a .xlsx dataset that I downloaded into my local computer.
+
++ **Kindly download from here:**
+
+https://github.com/mascotinme/MSDA-IS607/blob/master/cckp_historical_data_0.xls
+
+```{R}
+airqu <- read.xlsx2("C:/Users/mayowa/Documents/GitHub/MSDA-IS607/AirQualityUCI.xlsx", sheetName = "AirQualityUCI", header=TRUE, colClasses=NA)
+
+dim(airqu)
+kable(head(airqu))
+kable(tail(airqu))
+names(airqu)
+str(airqu)
+class(airqu)
+```
+
+
+> * We notice that there are alot of NA's in the dataset, we therefore thought it would be appropriate (for easy analysis) to replace the missing values or NA with Zero(o)
+  
+  * We also notice that the column names is ambiguous, we therefore change it to a reasonable column names.
+
+```{R}
+
+airqu$NMHC.GT.[is.na(airqu$NMHC.GT.)] <- 0.0000
+airqu$CO.GT.[is.na(airqu$CO.GT.)] <- 0.0000
+airqu$PT08.S1.CO.[is.na(airqu$PT08.S1.CO.)] <- 0.0000
+airqu$C6H6.GT.[is.na(airqu$C6H6.GT.)] <- 0.0000
+airqu$PT08.S2.NMHC.[is.na(airqu$PT08.S2.NMHC.)] <- 0.0000
+airqu$NOx.GT.[is.na(airqu$NOx.GT.)] <- 0.0000
+airqu$PT08.S3.NOx.[is.na(airqu$PT08.S3.NOx.)] <- 0.0000
+airqu$NO2.GT.[is.na(airqu$NO2.GT.)] <- 0.0000
+airqu$PT08.S4.NO2.[is.na(airqu$PT08.S4.NO2.)] <- 0.0000
+airqu$PT08.S5.O3.[is.na(airqu$PT08.S5.O3.)] <- 0.0000
+airqu$T[is.na(airqu$T)] <- 0.0000
+airqu$RH[is.na(airqu$RH)] <- 0.0000
+airqu$AH[is.na(airqu$AH)] <- 0.0000
+
+kable(head(airqu))
+
+
+colnames(airqu)[1] <- "date"
+colnames(airqu)[2] <- "time"
+colnames(airqu)[3] <- "co"
+colnames(airqu)[4] <- "tin_oxide"
+colnames(airqu)[5] <- "hydrocarbon"
+colnames(airqu)[6] <- "benzene"
+colnames(airqu)[7] <- "titania"
+colnames(airqu)[8] <- "nitroge_oxide"
+colnames(airqu)[9] <- "tungsten-oxide"
+colnames(airqu)[10] <- "no2"
+colnames(airqu)[11] <- "tungsten_oxide_o2"
+colnames(airqu)[12] <- "indium_oxide"
+colnames(airqu)[13] <- "temp_ac"
+colnames(airqu)[14] <- "rh"
+colnames(airqu)[15] <- "ah"
+
+
+kable(head(airqu))
+````
+
+
+
+> We will now connect R with MySql database.
+
+
+```{R}
+
+mysql = dbConnect(MySQL(), user='root', password='oracle', dbname='world', host='localhost') # This connects the R with MySQL. Note that the login entities may be different from your login details, kindly adjust as neccesary.
+```
+
+
+>We would like to view the list of database(s) which are already in MySQL database.
+
+
+```{R}
+class(mysql)
+dbListTables(mysql)
+```
+
+>Dropping and adding of table if they already exist to give access to the new table to be created. 
+
+```{R}
+
+dbSendQuery(mysql, 'drop table if exists airqu')
+
+
+
+dbWriteTable(conn=mysql, name='airqu', value=airqu)
+dbListFields(mysql, 'airqualityuci')
+
+```
+
+
+>We can now read and access the newly created table in R from MySQL directly.
+
+```{R}
+
+airqualityuci <- dbReadTable(conn=mysql, name='airqu')
+
+write.table(airqualityuci, file = "airqualityuci.csv",row.names=FALSE, na="",col.names=TRUE, sep=",")
+
+```
+
+
+> **Attribute Information :**
+
++  **Date:** Date (DD/MM/YYYY)                     
++ **Time:** Time (HH.MM.SS)            
+
++ **co:** True hourly averaged concentration CO in mg/m^3
+
++ **tin_oxide:** PT08.S1 (tin oxide) hourly averaged sensor response (nominally CO targeted)   
+
++ **hydrocarbon:** True hourly averaged overall Non Metanic HydroCarbons concentration in microg/m^3 (reference analyzer) 
+
++ **benzene:** True hourly averaged Benzene concentration in microg/m^3 (reference analyzer)
+
++ **titania:**  PT08.S2 (titania) hourly averaged sensor response (nominally NMHC targeted)
+
++ **nitroge_oxide:** True hourly averaged NOx concentration in ppb (reference analyzer) 
+
++ **tungsten_oxide:** PT08.S3 (tungsten oxide) hourly averaged sensor response (nominally NOx targeted) 
+
++ **no2:** True hourly averaged NO2 concentration in microg/m^3 (reference analyzer) 
+
++ **tungsten_oxide2:** PT08.S4 (tungsten oxide) hourly averaged sensor response (nominally NO2 targeted)
+
++ **indium_oxide:** PT08.S5 (indium oxide) hourly averaged sensor response (nominally O3 targeted)
+
++ **temp_ac:** Temperature in °C
+
++ **rh:** Relative Humidity (%)
+
++ **ah:** AH Absolute Humidit
+
+* we are going to randomly sample 900 (Less than 10%) observations from the total dataset.
+
+```{R}
+
+airqualityuci <- airqualityuci[sample(nrow(airqualityuci), 900), ]
+dim(airqualityuci)
+str(airqualityuci)
+summary(airqualityuci)
+
+
+```
+
+> **What recommendations has the federal government made to protect human health?**
+
+
+....EPA estimates that 10 ppb benzene in drinking water that is consumed regularly or exposure to 0.4 ppb in air over a lifetime could cause a risk of one additional cancer case for every 100,000 exposed persons......
+
+
++ The underlisted output displays the date, time of benzene with ppb greater than the safely regulated ppb for benzene.
+
+```{R}
+
+
+mysqlquery <- dbGetQuery(mysql, "SELECT Date, Time, benzene 
+     FROM airqu 
+     WHERE benzene IN (SELECT benzene 
+                  FROM airqu 
+                  WHERE benzene > 10)")
+
+kable(head(mysqlquery))
+
+```
+
+* No wonder! The EPA has classified benzene as a Group A, known human carcinogen
+
++ https://www3.epa.gov/airtoxics/hlthef/benzene.html
+
+
+> **MONGODB ---A NO-SQL**
+
+* use this query from your cmd shell: mongoimport --db world --collection airqualityuci --type csv --file"c:\Users\mayowa\Documents\airqualityuci.csv" --headerline
+
+* Adjust the file location accordingly
+
+```{R}
+mongo_conn <- mongo.create() # createing a MongoDB connection
+
+mongo.is.connected(mongo_conn)  # checking if the mongo is connected
+
+
+if(mongo.is.connected(mongo_conn) == TRUE) {
+  mongo.get.databases(mongo_conn)
+}
+
+
+if(mongo.is.connected(mongo_conn) == TRUE) {
+  db <- "world"
+  mongo.get.database.collections(mongo_conn, db)
+}
+
+
+mongo_conn = mongo(collection = "airqualityuci",  db = "world")
+mongo_conn$insert(airqualityuci) # Insert the airqualityuci into mongodb collection
+
+```
+
+
+
+```{r}
+
+plot(airqualityuci$temp_ac, airqualityuci$benzene, main = "Scatter Plot", xlab = "Temperature", ylab = "Benzene")
+abline(lm(airqualityuci$temp_ac~airqualityuci$benzene), col = "blue");
+
+cor(airqualityuci$temp_ac, airqualityuci$benzene)
+
+
+temp_co <- lm(temp_ac ~ benzene, data=airqualityuci)
+
+summary.lm(temp_co)
+
+
+plot(x=temp_co$residuals, y=temp_co$benzene)
+abline(h = 0, lty = 3, col = "blue")
+
+hist(temp_co$residuals)
+
+
+
+airqual <- subset(airqualityuci, select=c(co, tin_oxide, hydrocarbon, benzene, titania, nitroge_oxide, tungsten.oxide, no2, tungsten_oxide_o2, indium_oxide, temp_ac, rh, ah  ))
+
+plot(airqual)
+
+
+
+
+
+```
+
+
+> We are going to do  a Multiple Linear Regression model. But, we will want to chose the best model for our prediction.
+
+
+${ Y }\quad =\quad { B }_{ 0 }\quad +\quad { B }_{ 1 }{ X }_{ 1 }\quad +\quad { B }_{ 2 }{ X }_{ 2 }\quad +\quad$ .........+$\quad { B }_{ n }{ X }_{ n }\quad$ +$\quad { e}\\$
+
+
+
+
+> **SETTING UP HYPOTHESIS: # 1**
+
+* Null Hypothesis: The population parameters(means) are the same
+
+    $H_o:$ $\mu_1$ = $\mu_2$ = $\mu_3$.....= $\mu_n$ 
+
+
+* Alternative Hythesis: Not $H_o$
+   
+   $H_a:$  Not $H_o$  : $\mu_1$ $\neq$ $\mu_2$ $\neq$  $\mu_3$.....$\neq$ $\mu_n$
+
+
+>  **Rejection**:
+
+Reject $H_o$ (Null Hypothesis) if the calculated value (P-Value) is less that the tabulated value(Table value = *0.05* ), otherwise do not reject $H_o$
+
+
+
+* Underlisted are the best variables for the model, and analysis would be made on them.
+
+
+```{r}
+modelselection <- lm(temp_ac ~ tin_oxide+hydrocarbon+benzene+titania+nitroge_oxide+tungsten.oxide+no2+tungsten_oxide_o2+indium_oxide+co+rh+ah, data=airqual)
+
+stepwise <- step(modelselection, direction = "both") # Model Selection using both FORWARD AND BACKWARD selection.
+
+summary(stepwise)
+
+```
+
+
+* We will like to further test by using another statistical tool called Analysis of Variance (ANOVA)
+
+> **ANALYSIS OF VARIANCE (ANOVA)**
+
+```{r}
+anova(stepwise, test= "F")
+confint(stepwise)
+
+```
+
+**Decision:**
+
+From the above multiple regression analysis and ANOVA, we found that the P-value is actually low compare to the Table value (0.05), we therefor reject $H_o$ (Null hypothesis) and conclude that there is/are difference(s) between the variables.
+
+
+> The Error Term or Residual
+
+* We are going to check the distribution of the residuals with normal dataset distribution to determine the stochastics difference between the expected value and the observed value.
+
+```{R}
+
+residual_temp = data.frame(Fitted = fitted(stepwise),
+Residuals = resid(stepwise), Treatment = airqual$temp_ac)
+
+residual_benzene = data.frame(Fitted = fitted(stepwise),
+Residuals = resid(stepwise), Treatment = airqual$benzene)
+
+
+
+ggplot(residual_temp, aes(Fitted, Residuals, colour = Treatment)) + geom_point()
+ggplot(residual_benzene, aes(Fitted, Residuals, colour = Treatment)) + geom_point()
+
+
+```
+
+
+> **SECOND DATASET WAS EXTRACTED FROM THE WORLD BANK WEBSITE AS A .XLS FILE** 
+ 
+ * This dataset contains historical temperature extracted from the Climate Research Unit (Mitchell et al, 2003), aggregated to the country and basin levels.  The dataset time is from **1961-1999**.  
+ 
+ * Country_temperatureCRU:  mean monthly and annual temperatures by country for the period 1961-1999.  Values are in degrees Celsius.
+
++ we will like to compare the dataset with the above airquality analysis.
+
+```{R}
+suppressMessages(library(dplyr))
+
+dataset2 <- read.xlsx("C:/Users/mayowa/Documents/cckp_historical_data_0.xls", sheetIndex=4,
+  startRow=NULL, endRow=179, colIndex=NULL,
+  as.data.frame=TRUE, header=TRUE,
+  keepFormulas=FALSE)
+
+str(dataset2)
+
+kable(summary(dataset2))
+
+```
+
+
+> we are going to sample 172 observations from the 1st dataset to match with the second dataset to avoid bias.
+
+
+**SETTING UP HYPOTHESIS: # 2**
+
+* Null Hypothesis: There is no difference between means temperature in dataset 1 and dataset 2
+
+    $H_o:$ $\mu_1$ = $\mu_2$ = $\mu_3$.....= $\mu_n$ 
+
+
+* Alternative Hythesis:
+   
+    $H_a:$  Not $H_o:$ $\mu_1$ $\neq$ $\mu_2$ $\neq$  $\mu_3$.....$\neq$ $\mu_n$
+
+**Rejection**:
+
+Reject $H_o$ (Null Hypothesis) if the calculated value (P-Value) is less that the tabulated value(Table value = *0.05* ), otherwise do not reject $H_o$
+
+
+**Decision:**
+
+We therefore Accept $H_o$, since calculated calculated value (P-Value) is greater than the tabulated value(Table value = *0.05* )
+
+```{R}
+sample1 <- airqual[sample(nrow(airqual), 178), ]
+dim(sample1)
+
+
+temp_2 <- lm(sample1$temp_ac ~ dataset2$Annual_temp)
+
+summary.lm(temp_2)
+
+cor.test(sample1$temp_ac, dataset2$Annual_temp, method = c("pearson", "kendall", "spearman"),
+         exact = NULL, conf.level = 0.95, continuity = FALSE)
+
+
+anova(temp_2)
+
+```
+
+
+> **DATASET THREE(3)**
+
+* The dataset is a Leukemia incident rate collected from the Center for Diseases Control and Prevention Website for 49 US States.....
+
+
+**SETTING UP HYPOTHESIS: # 3**
+
+* Null Hypothesis: There is no relationship between benzene in dataset 1 and and the average incident in dataset 3
+
+    $H_o:$ $\mu_1$ = $\mu_2$ = $\mu_3$.....= $\mu_n$ 
+
+
+* Alternative Hythesis:
+   
+    $H_a:$  Not $H_o:$ $\mu_1$ $\neq$ $\mu_2$ $\neq$  $\mu_3$.....$\neq$ $\mu_n$
+
+**Rejection**:
+
+Reject $H_o$ (Null Hypothesis) if the calculated value (P-Value) is less than the tabulated value(Table value = *0.05* ), otherwise do not reject $H_o$
+
+
+```{R}
+library(plyr)
+
+incd <- read.csv("https://raw.githubusercontent.com/mascotinme/MSDA-IS607/master/incd.csv", sep = ",", header = TRUE, skip = 8)
+ 
+str(incd)
+# Rename the column names for easy accesibility
+
+incd$Average.Annual.Count <- as.numeric(incd$Average.Annual.Count)
+
+names(incd) <- c("state", "FIPS", "adj_age_100000", "lower_Adj_CI", "upper_Adj_CI", "avg_annual_count", "Recent.Trend", "5years_rate", "Lower_5Yrs_CI", "upper_5Yrs_CI")
+
+
+
+# We are going to seperate the rows(Stable, Rising and Falling)
+
+
+str(incd)
+
+kable(head(incd))
+
+stable <- subset(incd, incd$Recent.Trend == "stable")
+rising <- subset(incd, incd$Recent.Trend == "rising")
+falling <- subset(incd, incd$Recent.Trend == "falling")
+
+kable(head(stable))
+kable(head(rising))
+kable(head(falling))
+
+
+require(ggplot2)
+
+ggplot(stable, col = "red", aes(x =state, y=round(avg_annual_count,2))) +
+       geom_bar(stat="identity",position="dodge") + 
+       xlab("States") + 
+       ylab("Average Annual counts") + 
+       ggtitle("Average Annual Stable Leukemia Counts per US States")
+
+
+ggplot(rising, col = "blue", aes(x =state, y=round(avg_annual_count,2))) +
+       geom_bar(stat="identity",position="dodge") + 
+       xlab("States") + 
+       ylab("Average Annual counts") + 
+       ggtitle("Average Annual Rising Leukemia Counts per US States")
+
+
+sample_all1 <- sample1[sample(nrow(sample1), 45), ]
+sample_all2 <- dataset2[sample(nrow(dataset2), 45), ]
+sample_all3 <- incd[sample(nrow(incd), 45), ]
+allsamples <- data.frame(c(sample_all1, sample_all2, sample_all3))
+
+
+all_dataset_subset <- allsamples[, c("avg_annual_count", "Annual_temp" , "co", "benzene")]
+str(all_dataset_subset)
+
+
+
+
+linearmodel <- lm(all_dataset_subset$avg_annual_count ~(all_dataset_subset$co + all_dataset_subset$benzene))
+linearmodel
+
+anova(linearmodel)
+```
+
+
+**Decision:**
+
+We therefore Reject $H_o$, since calculated calculated value (P-Value) is greater than the tabulated value(Table value = *0.05* )
+
+
+
+> **GENERAL CONCLUSION:**
+
+
+Based on the above analysis done on the three databases, we therefore conclude that there is strong relationship between the carbon-monoxide (co), Temperature (temp_ac) and Benzene. Though, we the datasets might not be able to dtermine the actual casue of the link between the variables, we are strongly confident that a reduction in the exposure to their atmospheric condition (particularyly Benzene) may aid in reducing leukemia in the United States and the World at large.
+
+Note: The analysis is not exclusive as some other contributing factor(s) may also needs to be accessed.
+
+```{}
+
+```
+
+
+
+> REFERENCES:
+
+* http://star.psy.ohio-state.edu/coglab/Demos/r.anova.html
+
+* http://archive.ics.uci.edu/ml/datasets/Air+Quality# (Data Source)
+
+* http://www.statecancerprofiles.cancer.gov/incidencerates/index.php?stateFIPS=00&cancer=090&race=00&sex=0&age=009&year=0&type=incd&sortVariableName=rate&sortOrder=default#results (Data Source)
+
+
+* https://www.youtube.com/watch?v=1NOlgZLoojE 
+
+* http://stackoverflow.com/questions/7531868/how-to-rename-a-single-column-in-a-data-frame-in-r
+
+* https://nccd.cdc.gov/uscs/cancersbystateandregion.aspx (Data source)
+
+* http://www.ats.ucla.edu/stat/r/faq/subset_R.htm
