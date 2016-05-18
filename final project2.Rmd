@@ -3,10 +3,10 @@ title: 'IS 606: PROJECT'
 author: "MUSA T. GANIYU"
 date: "April 28, 2016"
 output:
-  pdf_document: default
   html_document:
     highlight: pygments
     theme: cerulean
+  pdf_document: default
   tidy: yes
 ---
 
@@ -17,7 +17,9 @@ output:
 
 * Analyses was done on all the three datasets to determine if the is linear relationship between them. I found out that the Air Quality has some of it variables that are way beyond the acceptable threnshold, I checked for interaction between those variables and benzene. I compared the result with the Leukemia incident rate in the 49 US States and the result is amazing. 
 
-* We would be **randomly** select observations to avoid bias.
+* We would **randomly** select observations to avoid bias.
+
+* We would do some of the analysis on three(3) different programs; R, MySQL and MongoDB.
 
 
 > **AIM AND OBJECTIVE:**
@@ -52,7 +54,7 @@ suppressMessages(library(ggplot2))
 
 http://archive.ics.uci.edu/ml/datasets/Air+Quality#
 
-* It is a .xlsx dataset that I downloaded into my local computer.
+** It is a .xlsx dataset that I downloaded into my local computer.**
 
 + **Kindly download from here:**
 
@@ -188,7 +190,7 @@ write.table(airqualityuci, file = "airqualityuci.csv",row.names=FALSE, na="",col
 
 + **ah:** AH Absolute Humidit
 
-* we are going to randomly sample 900 (Less than 10%) observations from the total dataset.
+** we are going to randomly sample 900 (Less than 10%) observations from the total dataset.**
 
 ```{R}
 
@@ -221,14 +223,16 @@ kable(head(mysqlquery))
 
 ```
 
-* No wonder! The EPA has classified benzene as a Group A, known human carcinogen
+* No wonder! The EPA has classified benzene as a Group A, known human carcinogen!
 
 + https://www3.epa.gov/airtoxics/hlthef/benzene.html
 
 
 > **MONGODB ---A NO-SQL**
 
-* use this query from your cmd shell: mongoimport --db world --collection airqualityuci --type csv --file"c:\Users\mayowa\Documents\airqualityuci.csv" --headerline
+* use this query from your cmd shell: 
+
+mongoimport --db world --collection airqualityuci --type csv --file"c:\Users\mayowa\Documents\airqualityuci.csv" --headerline
 
 * Adjust the file location accordingly
 
@@ -258,7 +262,7 @@ mongo_conn$insert(airqualityuci) # Insert the airqualityuci into mongodb collect
 
 ```{r}
 
-plot(airqualityuci$temp_ac, airqualityuci$benzene, main = "Scatter Plot", xlab = "Temperature", ylab = "Benzene")
+plot(airqualityuci$temp_ac, airqualityuci$benzene, main = "Scatter Plot", xlab = "Temperature", ylab = "Benzene", xlim =c(0, 50), ylim =c(-10, 20))
 abline(lm(airqualityuci$temp_ac~airqualityuci$benzene), col = "blue");
 
 cor(airqualityuci$temp_ac, airqualityuci$benzene)
@@ -279,11 +283,6 @@ hist(temp_co$residuals)
 airqual <- subset(airqualityuci, select=c(co, tin_oxide, hydrocarbon, benzene, titania, nitroge_oxide, tungsten.oxide, no2, tungsten_oxide_o2, indium_oxide, temp_ac, rh, ah  ))
 
 plot(airqual)
-
-
-
-
-
 ```
 
 
@@ -336,10 +335,6 @@ confint(stepwise)
 
 ```
 
-**Decision:**
-
-From the above multiple regression analysis and ANOVA, we found that the P-value is actually low compare to the Table value (0.05), we therefor reject $H_o$ (Null hypothesis) and conclude that there is/are difference(s) between the variables.
-
 
 > The Error Term or Residual
 
@@ -360,6 +355,13 @@ ggplot(residual_benzene, aes(Fitted, Residuals, colour = Treatment)) + geom_poin
 
 
 ```
+
+
+**Decision & Conclusion:**
+
+From the above multiple regression analysis and ANOVA, we found that the P-value is actually low compare to the Table value (0.05), we therefor reject $H_o$ (Null hypothesis) and conclude that there is/are difference(s) between the variables.
+
+
 
 
 > **SECOND DATASET WAS EXTRACTED FROM THE WORLD BANK WEBSITE AS A .XLS FILE** 
@@ -385,7 +387,7 @@ kable(summary(dataset2))
 ```
 
 
-> we are going to sample 172 observations from the 1st dataset to match with the second dataset to avoid bias.
+> we are going to sample 178 observations from the 1st dataset to match with the second dataset to avoid bias.
 
 
 **SETTING UP HYPOTHESIS: # 2**
@@ -429,6 +431,10 @@ anova(temp_2)
 > **DATASET THREE(3)**
 
 * The dataset is a Leukemia incident rate collected from the Center for Diseases Control and Prevention Website for 49 US States.....
+
+** Data Source:**
+
+* http://www.statecancerprofiles.cancer.gov/incidencerates/index.php?stateFIPS=00&cancer=090&race=00&sex=0&age=009&year=0&type=incd&sortVariableName=rate&sortOrder=default#results
 
 
 **SETTING UP HYPOTHESIS: # 3**
@@ -521,7 +527,7 @@ We therefore Reject $H_o$, since calculated calculated value (P-Value) is greate
 > **GENERAL CONCLUSION:**
 
 
-Based on the above analysis done on the three databases, we therefore conclude that there is strong relationship between the carbon-monoxide (co), Temperature (temp_ac) and Benzene. Though, we the datasets might not be able to dtermine the actual casue of the link between the variables, we are strongly confident that a reduction in the exposure to their atmospheric condition (particularyly Benzene) may aid in reducing leukemia in the United States and the World at large.
+Based on the above analyzes done on the three databases, we therefore conclude that there are strong relationships between the carbon-monoxide (co), Temperature (temp_ac) and Benzene. Though, the datasets might not be enough to be able to determine the actual causes,  and links between the variables, we are strongly confident that a reduction in the exposure to their atmospheric condition (particularly Benzene) may aid in reducing leukemia in the United States and the World at large.
 
 Note: The analysis is not exclusive as some other contributing factor(s) may also needs to be accessed.
 
