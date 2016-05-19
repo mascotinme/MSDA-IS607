@@ -1,5 +1,5 @@
 ---
-title: 'IS 606: PROJECT'
+title: 'IS 607: PROJECT'
 author: "MUSA T. GANIYU"
 date: "April 28, 2016"
 output:
@@ -262,7 +262,7 @@ mongo_conn$insert(airqualityuci) # Insert the airqualityuci into mongodb collect
 
 ```{r}
 
-plot(airqualityuci$temp_ac, airqualityuci$benzene, main = "Scatter Plot", xlab = "Temperature", ylab = "Benzene", xlim =c(0, 50), ylim =c(-10, 20))
+plot(airqualityuci$temp_ac, airqualityuci$benzene, main = "Scatter Plot", xlab = "Temperature", ylab = "Benzene")
 abline(lm(airqualityuci$temp_ac~airqualityuci$benzene), col = "blue");
 
 cor(airqualityuci$temp_ac, airqualityuci$benzene)
@@ -286,7 +286,7 @@ plot(airqual)
 ```
 
 
-> We are going to do  a Multiple Linear Regression model. But, we will want to chose the best model for our prediction.
+> We are going to do  a Multiple Linear Regression model. But, we will want to choose the best model for our prediction.
 
 
 ${ Y }\quad =\quad { B }_{ 0 }\quad +\quad { B }_{ 1 }{ X }_{ 1 }\quad +\quad { B }_{ 2 }{ X }_{ 2 }\quad +\quad$ .........+$\quad { B }_{ n }{ X }_{ n }\quad$ +$\quad { e}\\$
@@ -369,6 +369,8 @@ From the above multiple regression analysis and ANOVA, we found that the P-value
  * This dataset contains historical temperature extracted from the Climate Research Unit (Mitchell et al, 2003), aggregated to the country and basin levels.  The dataset time is from **1961-1999**.  
  
  * Country_temperatureCRU:  mean monthly and annual temperatures by country for the period 1961-1999.  Values are in degrees Celsius.
+
+ * http://databank.worldbank.org/data/download/catalog/cckp_historical_data_0.xls
 
 + we will like to compare the dataset with the above airquality analysis.
 
@@ -527,7 +529,7 @@ We therefore Reject $H_o$, since calculated calculated value (P-Value) is greate
 > **GENERAL CONCLUSION:**
 
 
-Based on the above analyzes done on the three databases, we therefore conclude that there are strong relationships between the carbon-monoxide (co), Temperature (temp_ac) and Benzene. Though, the datasets might not be enough to be able to determine the actual causes,  and links between the variables, we are strongly confident that a reduction in the exposure to their atmospheric condition (particularly Benzene) may aid in reducing leukemia in the United States and the World at large.
+Based on the above analyzes done on the three datasets, we therefore conclude that there are strong relationships between the carbon-monoxide (co), Temperature (temp_ac) and Benzene. Though, the datasets might not be enough to be able to determine the actual causes,  and links between the variables, we are strongly confident that a reduction in the exposure to their atmospheric condition (particularly Benzene) may aid in reducing leukemia in the United States and the World at large.
 
 Note: The analysis is not exclusive as some other contributing factor(s) may also needs to be accessed.
 
@@ -550,6 +552,6 @@ Note: The analysis is not exclusive as some other contributing factor(s) may als
 
 * http://stackoverflow.com/questions/7531868/how-to-rename-a-single-column-in-a-data-frame-in-r
 
-* https://nccd.cdc.gov/uscs/cancersbystateandregion.aspx (Data source)
+* http://databank.worldbank.org/data/download/catalog/cckp_historical_data_0.xls (Data source)
 
 * http://www.ats.ucla.edu/stat/r/faq/subset_R.htm
